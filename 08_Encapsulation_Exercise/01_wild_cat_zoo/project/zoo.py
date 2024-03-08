@@ -1,23 +1,29 @@
+from typing import List
+
+from project.animal import Animal
+from project.worker import Worker
+
+
 class Zoo:
     def __init__(self, name: str, budget: int, animal_capacity: int, workers_capacity: int):
         self.name = name
-        self.budget = budget
-        self.animal_capacity = animal_capacity
-        self.workers_capacity = workers_capacity
-        self.animals = []
-        self.workers = []
+        self.__budget = budget
+        self.__animal_capacity = animal_capacity
+        self.__workers_capacity = workers_capacity
+        self.animals: List[Animal] = []
+        self.workers: List[Worker] = []
 
-    def add_animal(self, animal, price: int) -> str:
-        if self.animal_capacity > len(self.animals):
-            if self.budget < price:
+    def add_animal(self, animal: Animal, price: int) -> str:
+        if self.__animal_capacity > len(self.animals):
+            if self.__budget < price:
                 return "Not enough budget"
             self.animals.append(animal)
-            self.budget -= price
+            self.__budget -= price
             return f"{animal.name} the {animal.__class__.__name__} added to the zoo"
         return f"Not enough space for animal"
 
-    def hire_worker(self, worker) -> str:
-        if self.workers_capacity > len(self.workers):
+    def hire_worker(self, worker: Worker) -> str:
+        if self.__workers_capacity > len(self.workers):
             self.workers.append(worker)
             return f"{worker.name} the {worker.__class__.__name__} hired successfully"
         return "Not enough space for worker"
@@ -32,51 +38,58 @@ class Zoo:
         return f"{worker_name} fired successfully"
 
     def pay_workers(self) -> str:
-        total_salary = 0
-        for worker in self.workers:
-            total_salary += worker.salary
+        total_salary = sum([w.salary for w in self.workers])
 
-        if self.budget >= total_salary:
-            self.budget -= total_salary
-            return f"You payed your workers. They are happy. Budget left: {self.budget}"
+        if self.__budget >= total_salary:
+            self.__budget -= total_salary
+            return f"You payed your workers. They are happy. Budget left: {self.__budget}"
         return "You have no budget to pay your workers. They are unhappy"
 
     def tend_animals(self) -> str:
-        total_tend = 0
-        for animal in self.animals:
-            total_tend += animal.money_for_care
+        total_tend = sum([a.money_for_care for a in self.animals])
 
-        if total_tend <= self.budget:
-            self.budget -= total_tend
-            return f"You tended all the animals. They are happy. Budget left: {self.budget}"
+        if total_tend <= self.__budget:
+            self.__budget -= total_tend
+            return f"You tended all the animals. They are happy. Budget left: {self.__budget}"
         return "You have no budget to tend the animals. They are unhappy."
 
     def profit(self, amount: int) -> None:
-        self.budget += amount
+        self.__budget += amount
 
     def animals_status(self) -> str:
-        lions_data = '\n'.join(animal.__repr__ for animal in self.animals if animal == "Lion")
-        tigers_data = '\n'.join(animal.__repr__ for animal in self.animals if animal == 'Tiger')
-        cheetahs_data = '\n'.join(animal.__repr__ for animal in self.animals if animal == 'Cheetah')
+        result = f"You have {len(self.animals)} animals\n"
+        lions = [a for a in self.animals if a.__class__.__name__ == 'Lion']
+        result += f"----- {len(lions)} Lions:\n"
+        for lion in lions:
+            result += f"{lion}\n"
 
-        return f"You have {len(self.animals)} animals\n" \
-               f"----- {len([animal for animal in self.animals if animal.__class__.__name__ == 'Lion'])} Lions:\n" \
-               f"{lions_data}\n" \
-               f"----- {len([animal for animal in self.animals if animal.__class__.__name__ == 'Tiger'])} Tigers:\n" \
-               f"{tigers_data}\n" \
-               f"----- {len([animal for animal in self.animals if animal.__class__.__name__ == 'Cheetah'])} Cheetahs:\n" \
-               f"{cheetahs_data}\n"
+        tigers = [animal for animal in self.animals if animal.__class__.__name__ == 'Tiger']
+        result += f"----- {len(tigers)} Tigers:\n"
+        for tiger in tigers:
+            result += f"{tiger}\n"
+
+        cheetahs = [animal for animal in self.animals if animal.__class__.__name__ == 'Cheetah']
+        result += f"----- {len(cheetahs)} Cheetahs:\n"
+        for cheetah in cheetahs:
+            result += f"{cheetah}\n"
+
+        return result[:-1]
 
     def workers_status(self) -> str:
-        caretakers_data = [worker for worker in self.workers if worker.__class__.__name__ == 'Caretaker']
+        result = f"You have {len(self.workers)} workers\n"
         keepers_data = [worker for worker in self.workers if worker.__class__.__name__ == 'Keeper']
-        vets_data = [worker for worker in self.workers if worker.__class__.__name__ == 'Vet']
+        result += f"----- {len(keepers_data)} Keepers:\n"
+        for keeper in keepers_data:
+            result += f"{keeper}\n"
 
-        keepers_result = "\n".join(keeper for keeper in self.workers if keeper.__class__.__name__ == 'Keeper')
-        return f"You have {len(self.animals)} animals\n" \
-               f"----- {len(keepers_data)} Keepers:\n" \
-               f"{keepers_result}" \
-               f"----- {len(caretakers_data)} Caretakers:\n" \
-               f"" \
-               f"----- {len(vets_data)} Vets:\n" \
-               f""
+        caretakers_data = [worker for worker in self.workers if worker.__class__.__name__ == 'Caretaker']
+        result += f"----- {len(caretakers_data)} Caretakers:\n"
+        for caretaker in caretakers_data:
+            result += f"{caretaker}\n"
+
+        vets_data = [worker for worker in self.workers if worker.__class__.__name__ == 'Vet']
+        result += f"----- {len(vets_data)} Vets:\n"
+        for vet in vets_data:
+            result += f"{vet}\n"
+
+        return result[:-1]

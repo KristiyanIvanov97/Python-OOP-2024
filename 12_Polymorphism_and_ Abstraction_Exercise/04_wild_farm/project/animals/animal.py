@@ -46,4 +46,4 @@ class Mammal(Animal, ABC):
         self.living_region = living_region
 
     def __repr__(self):
-        return f"{self.__class__.__name__} [{self.name}, {self.living_region}, {self.weight}, {self.food_eaten}]"
+        return f"{self.__class__.__name__} [{self.name}, {self.weight}, {self.living_region}, {self.food_eaten}]"
